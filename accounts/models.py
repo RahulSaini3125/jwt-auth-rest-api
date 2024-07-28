@@ -1,3 +1,14 @@
+"""
+Module for defining models in the authentication system.
+
+This module includes the definitions for the CustomUser and Notes models,
+which are used to store user information and user-generated notes, respectively.
+
+Classes:
+    CustomUser: Extends AbstractBaseUser and PermissionsMixin to create a custom user model.
+    Notes: Model to store notes created by users.
+"""
+
 from django.db import models
 from .manager import UserCustomManager
 from django.contrib.auth.models import PermissionsMixin,AbstractBaseUser
@@ -7,6 +18,18 @@ from django.db import IntegrityError,OperationalError
 # Create your models here.
 
 class CustomUser(AbstractBaseUser,PermissionsMixin):
+    """
+    CustomUser model extending AbstractBaseUser and PermissionsMixin.
+    
+    Attributes:
+        email (EmailField): User's email address, used as the username field.
+        first_name (CharField): User's first name, required.
+        last_name (CharField): User's last name, optional.
+        date_joined (DateTimeField): Timestamp when the user joined.
+        is_active (BooleanField): Indicates if the user account is active.
+        is_staff (BooleanField): Indicates if the user has staff status.
+        is_superuser (BooleanField): Indicates if the user has superuser status.
+    """
     email = models.EmailField(_('User Email'),unique=True)
     first_name = models.CharField(_('First Name'),max_length=10)
     last_name = models.CharField(_('Last Name'),max_length=10,blank=True)
@@ -26,6 +49,15 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
     
 
 class Notes(models.Model):
+    """
+    Notes model to store user notes.
+    
+    Attributes:
+        notes (CharField): The note content.
+        notes_type (CharField): The type of note, must be one of ['personal', 'work', 'other'].
+        create_date (DateTimeField): Timestamp when the note was created.
+        created_by (ForeignKey): Reference to the user who created the note.
+    """
     NOTES_TYPE = [
         ('personal',_('personal')),
         ('work',_('work')),
@@ -42,6 +74,23 @@ class Notes(models.Model):
 
     @classmethod
     def create_note(cls,notes:str,type:str,user):
+        """
+        Class method to create a new note.
+        
+        Args:
+            notes (str): The content of the note.
+            type (str): The type of the note, must be one of ['personal', 'work', 'other'].
+            user (CustomUser): The user creating the note.
+        
+        Raises:
+            ValueError: If an invalid note type is provided.
+            IntegrityError: If there is a database integrity error.
+            OperationalError: If there is a database operational error.
+            Exception: For any other exceptions.
+        
+        Returns:
+            Notes: The created note instance.
+        """
         valid_type = [type[0] for type in cls.NOTES_TYPE]
         if type not in valid_type:
             raise ValueError(f'Invalid Notes Type {type} provided')
