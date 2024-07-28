@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import logging.config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -123,3 +125,63 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
+# Email backend configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# SMTP server settings
+EMAIL_HOST = 'smtp.gmail.com'  # e.g., 'smtp.gmail.com' for Gmail
+EMAIL_PORT = 587  # For TLS, use 465 for SSL
+EMAIL_USE_TLS = True  # Use TLS (True) or SSL (False)
+EMAIL_USE_SSL = False  # Use SSL (False) or TLS (True), mutually exclusive with EMAIL_USE_TLS
+
+# Authentication credentials
+EMAIL_HOST_USER = 'apidonotreply993@gmail.com'
+EMAIL_HOST_PASSWORD = 'mpffgqcnqgpcwyjy'
+
+# Default from email address
+DEFAULT_FROM_EMAIL = 'apidonotreply993@gmail.com'
+
+# Optional: Email subject prefix
+EMAIL_SUBJECT_PREFIX = '[Rest API JWT Auth] '
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_logger':False,
+    'formatters': {
+        'verbose':{
+            'format':'{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple':{
+            'format':'[{levelname}] {message}',
+            'style':'{',
+        },
+    },
+    'handlers':{
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+     'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'accounts': {  # Replace 'myapp' with the name of your app
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

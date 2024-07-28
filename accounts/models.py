@@ -15,8 +15,10 @@ from django.contrib.auth.models import PermissionsMixin,AbstractBaseUser
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import IntegrityError,OperationalError
-# Create your models here.
+from django.contrib.auth.tokens import default_token_generator
 
+
+# Create your models here.
 class CustomUser(AbstractBaseUser,PermissionsMixin):
     """
     CustomUser model extending AbstractBaseUser and PermissionsMixin.
@@ -29,14 +31,16 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
         is_active (BooleanField): Indicates if the user account is active.
         is_staff (BooleanField): Indicates if the user has staff status.
         is_superuser (BooleanField): Indicates if the user has superuser status.
+        is_email_verify (BooleanField): Indicates if the user has email verify.
     """
     email = models.EmailField(_('User Email'),unique=True)
     first_name = models.CharField(_('First Name'),max_length=10)
     last_name = models.CharField(_('Last Name'),max_length=10,blank=True)
     date_joined = models.DateTimeField(_('Date Joined'),auto_now_add=True)
-    is_active = models.BooleanField(_('active'),default=True)
-    is_staff = models.BooleanField(_('staff status'),default=False)
-    is_superuser = models.BooleanField(_('super user'),default=False)
+    is_active = models.BooleanField(_('Active'),default=False)
+    is_staff = models.BooleanField(_('Staff Status'),default=False)
+    is_superuser = models.BooleanField(_('Super User'),default=False)
+    is_email_verify = models.BooleanField(_('Email Verify'),default=False)
 
     objects = UserCustomManager()
     USERNAME_FIELD = 'email'
@@ -44,8 +48,30 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
 
     
     class Meta:
+        """
+        Meta
+        ----
+
+        Meta options for the CustomUser model.
+
+        Attributes:
+            verbose_name (str): A human-readable name for the model in singular form.
+            verbose_name_plural (str): A human-readable name for the model in plural form.
+        """
         verbose_name = _('User')
         verbose_name_plural = _('Users')
+    
+    def generate_token(self):
+        """
+        generate_token(self)
+        --------------------
+
+        Generates a token for the user.
+
+        Returns:
+            str: A token generated for the user instance using Django's default token generator.
+        """
+        return default_token_generator.make_token(self)
     
 
 class Notes(models.Model):
@@ -69,6 +95,16 @@ class Notes(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
 
     class Meta:
+        """
+        Meta
+        ----
+
+        Meta options for the CustomUser model.
+
+        Attributes:
+            verbose_name (str): A human-readable name for the model in singular form.
+            verbose_name_plural (str): A human-readable name for the model in plural form.
+        """
         verbose_name = _('Note')
         verbose_name_plural = _('Notes')
 

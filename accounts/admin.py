@@ -23,15 +23,15 @@ class CustomUserAdmin(admin.ModelAdmin):
         fieldsets (tuple): Fields to display in the detail view, organized by sections.
         readonly_fields (tuple): Fields to be set as read-only in the detail view.
     """
-    list_display =('email',)
+    list_display =('email','is_email_verify','is_active')
     search_fields = ('email','first_name','last_name')
-    list_filter =('is_active','is_staff','is_superuser')
+    list_filter =('is_active','is_staff','is_superuser','is_email_verify')
     fieldsets = (
-        ('Personal info', {'fields': ('email','first_name', 'last_name')}),
+        ('Personal info', {'fields': ('email','first_name', 'last_name','is_email_verify')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    readonly_fields = ('email','first_name','last_name','date_joined','is_staff','is_superuser','last_login','is_active')
+    readonly_fields = ('email','first_name','last_name','date_joined','is_staff','is_superuser','last_login','is_active','is_email_verify')
 
 
 class CustomNoteAdmin(admin.ModelAdmin):

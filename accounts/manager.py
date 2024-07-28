@@ -78,6 +78,7 @@ class UserCustomManager(BaseUserManager):
         """
         extra_field.setdefault('is_staff',True)
         extra_field.setdefault('is_superuser',True)
+        extra_field.setdefault('is_email_verify',True)
         if extra_field.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True')
         if extra_field.get('is_superuser') is not True:

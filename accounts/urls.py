@@ -20,5 +20,6 @@ Attributes:
 from django.urls import path
 from . import views
 urlpatterns = [
-    
+    path('registration-user/',views.user_registration.as_view()),
+    path('activate/<uidb64>/<token>/', views.ActivateAccount.as_view(), name='activate-account'),
 ]
