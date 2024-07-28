@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import logging.config
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,11 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^!2m8ux9gdbk!=!(e@l3#qqz4!5py9#9ydvj(k$h1f2c=va-ke'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = os.getenv('DEBUG')
 ALLOWED_HOSTS = []
 
 
@@ -137,11 +137,11 @@ EMAIL_USE_TLS = True  # Use TLS (True) or SSL (False)
 EMAIL_USE_SSL = False  # Use SSL (False) or TLS (True), mutually exclusive with EMAIL_USE_TLS
 
 # Authentication credentials
-EMAIL_HOST_USER = 'apidonotreply993@gmail.com'
-EMAIL_HOST_PASSWORD = 'mpffgqcnqgpcwyjy'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Default from email address
-DEFAULT_FROM_EMAIL = 'apidonotreply993@gmail.com'
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 
 # Optional: Email subject prefix
 EMAIL_SUBJECT_PREFIX = '[Rest API JWT Auth] '
