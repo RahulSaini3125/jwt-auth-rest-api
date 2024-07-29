@@ -11,6 +11,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 logger = logging.getLogger(__name__)
 
 
@@ -157,3 +159,90 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             return user
         else:
             raise Exception(f'Something Went Wrong')
+        
+
+class UserLoginSerializers(serializers.Serializer):
+    """
+    UserLoginSerializers handles the validation and creation of tokens for user authentication.
+
+    Fields:
+    - email: The email address of the user (required).
+    - password: The password of the user (required, write-only, min length 8).
+    - access: The access token for the authenticated user (read-only).
+    - refresh: The refresh token for the authenticated user (read-only).
+
+    Validation:
+    - Checks if both email and password are provided.
+    - Authenticates the user using the provided email and password.
+    - Ensures the user exists, has verified their email, and is active.
+
+    Raises:
+    - ValidationError if the email or password is missing.
+    - ValidationError if the user does not exist.
+    - ValidationError if the login credentials are invalid.
+    - ValidationError if the email is not verified.
+    - ValidationError if the user is deactivated.
+
+    Create:
+    - Generates JWT tokens (access and refresh) for the authenticated user.
+    """
+    email = serializers.EmailField(max_length=255)
+    password = serializers.CharField(write_only=True, min_length=8)
+    access = serializers.CharField(read_only=True)
+    refresh = serializers.CharField(read_only=True)
+
+    def validate(self, attrs):
+        """
+        Validates the provided email and password.
+
+        Validation Steps:
+        - Checks if both email and password are provided.
+        - Attempts to authenticate the user using the provided email and password.
+        - Ensures the user exists, has verified their email, and is active.
+
+        Raises:
+        - ValidationError if the email or password is missing.
+        - ValidationError if the user does not exist.
+        - ValidationError if the login credentials are invalid.
+        - ValidationError if the email is not verified.
+        - ValidationError if the user is deactivated.
+
+        Returns:
+        - A dictionary containing the validated user.
+        """
+        email = attrs.get('email')
+        password = attrs.get('password')
+        if email and password:
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError({'login':'User with this email does not exist'})
+            user = authenticate(request=self.context.get('request'),email= email,password= password)
+            if user is None:
+                raise serializers.ValidationError({'login':'Invalid login credentials'})
+            if not user.is_email_verify:
+                raise serializers.ValidationError({'email':'please verify your email'})
+            if not user.is_active:
+                raise serializers.ValidationError({'user':'User is deactivated'})
+            attrs['user']= user
+            return attrs
+        else:
+            raise serializers.ValidationError({'email':'field is required','password':'field is required'})
+        
+    def create(self, validated_data):
+        """
+        Creates and returns JWT tokens for the authenticated user.
+
+        Steps:
+        - Generates a refresh token for the authenticated user.
+        - Generates an access token from the refresh token.
+        - Adds the tokens to the validated data dictionary.
+
+        Returns:
+        - A dictionary containing the refresh and access tokens.
+        """
+        user = validated_data.get('user')
+        refresh = RefreshToken.for_user(user)
+        validated_data['refresh'] = str(refresh)
+        validated_data['access'] = str(refresh.access_token)
+        return validated_data

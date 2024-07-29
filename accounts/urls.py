@@ -1,20 +1,13 @@
 """
 URL configuration for the accounts app.
 
-This module defines the URL patterns for the accounts app. It imports the necessary views
-and maps URLs to these views. Currently, the urlpatterns list is empty and should be updated
-with paths to views as they are implemented.
-
-Examples:
-    from . import views
-    urlpatterns = [
-        path('login/', views.LoginView.as_view(), name='login'),
-        path('logout/', views.LogoutView.as_view(), name='logout'),
-        path('register/', views.RegisterView.as_view(), name='register'),
-    ]
+Defines URL patterns for account-related views.
 
 Attributes:
-    urlpatterns (list): A list of URL patterns to be used by the Django URL dispatcher.
+    urlpatterns (list): URL patterns for user registration, account activation, and login.
+        - 'registration-user/': User registration view.
+        - 'activate/<uidb64>/<token>/': Account activation view.
+        - 'user-login/': User login view.
 """
 # URL patterns for the accounts
 from django.urls import path
@@ -22,4 +15,5 @@ from . import views
 urlpatterns = [
     path('registration-user/',views.user_registration.as_view()),
     path('activate/<uidb64>/<token>/', views.ActivateAccount.as_view(), name='activate-account'),
+    path('user-login/',views.UserLogin.as_view(),name='user-login'),
 ]

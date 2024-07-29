@@ -2,7 +2,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserRegistrationSerializer
+from .serializers import UserRegistrationSerializer, UserLoginSerializers
 import logging
 from rest_framework.serializers import ValidationError
 from django.utils.http import urlsafe_base64_decode
@@ -60,3 +60,44 @@ class ActivateAccount(APIView):
             return Response({'status':status.HTTP_200_OK,'message': 'Account activated successfully'}, status=status.HTTP_200_OK)
         else:
             return Response({'status':status.HTTP_400_BAD_REQUEST,'message': 'Activation link is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class UserLogin(APIView):
+    """
+    UserLoginView handles the authentication of users.
+
+    Endpoint: POST /login/
+
+    Request Body Parameters:
+    - email: The email address of the user (required).
+    - password: The password of the user (required).
+
+    Responses:
+    - 202 Accepted:
+        - Status: 202
+        - Message: "Login successful"
+        - Info: A dictionary containing:
+            - email: The email address of the authenticated user.
+            - access: The access token for the authenticated user.
+            - refresh: The refresh token for the authenticated user.
+    
+    - 400 Bad Request:
+        - Status: 400
+        - Message: "Unsuccessful"
+        - Error: A dictionary containing error messages for invalid fields.
+
+    This view uses the UserLoginSerializers to validate and authenticate the user.
+    On successful authentication, it returns JWT tokens (access and refresh) along with the user's email.
+    """
+    def post(self,request):
+        loginserializer = UserLoginSerializers(data=request.data,context={'request':request})
+        if loginserializer.is_valid():
+            login_user = loginserializer.save()
+            response_data = {
+                'status':status.HTTP_202_ACCEPTED,
+                'message': 'login successfull',
+                'info':loginserializer.data
+            }
+            return Response(status=status.HTTP_202_ACCEPTED,data=response_data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST,data={'status':status.HTTP_400_BAD_REQUEST,'message':'unsuccessfull','error':loginserializer.errors})
