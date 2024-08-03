@@ -15,7 +15,7 @@ from django.contrib.auth.models import PermissionsMixin,AbstractBaseUser
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import IntegrityError,OperationalError
-from django.contrib.auth.tokens import default_token_generator
+from .token import expiring_token_generator
 
 
 # Create your models here.
@@ -71,7 +71,7 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
         Returns:
             str: A token generated for the user instance using Django's default token generator.
         """
-        return default_token_generator.make_token(self)
+        return expiring_token_generator.make_token(self)
     
 
 class Notes(models.Model):
