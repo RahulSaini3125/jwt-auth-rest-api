@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.contrib.auth.tokens import default_token_generator
 import base64
 import json
+from dateutil.parser import isoparse
 
 class ExpiringTokenGenerator(default_token_generator.__class__):
     def make_token(self, user):
@@ -20,10 +21,11 @@ class ExpiringTokenGenerator(default_token_generator.__class__):
         try:
             payload = json.loads(base64.urlsafe_b64decode(token.encode()).decode())
             token_value = payload['token']
-            expires_at = timezone.parse_iso_format(payload['expires_at'])
+            iso_date_string = payload['expires_at']
+            expires_at = isoparse(iso_date_string)
             if timezone.now() > expires_at:
                 return False
-            return super().check_token(user, token_value)
+            return True
         except Exception:
             return False
 

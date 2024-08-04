@@ -9,7 +9,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.shortcuts import get_object_or_404
 from .models import CustomUser
-from django.contrib.auth.tokens import default_token_generator
+from .token import ExpiringTokenGenerator
 from django.http import Http404
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class ActivateAccount(APIView):
             user = get_object_or_404(CustomUser, pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist,Http404):
             user = None
-        if user is not None and default_token_generator.check_token(user, token):
+        if user is not None and ExpiringTokenGenerator.check_token(self,user = user,token=token):
             user.is_active = True
             user.is_email_verify = True
             user.save()
